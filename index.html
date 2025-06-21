@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Cash Register</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <h1>Cash Register</h1>
+      <div class="container">
+        <input
+          id="cash"
+          type="number"
+          min="0"
+          placeholder="Enter cash from customer"
+        />
+        <button id="purchase-btn">Purchase</button>
+        <p id="total-price">Total:</p>
+        <div id="cid">
+          <p>Change in drawer:</p>
+          <ul class="cid-list">
+            <li>Pennies:</li>
+            <li>Nickels:</li>
+            <li>Dimes:</li>
+            <li>Quarters:</li>
+            <li>Dollars:</li>
+            <li>Fives:</li>
+            <li>Tens:</li>
+            <li>Twenties:</li>
+            <li>Hundreds:</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="status-container">
+        <div id="change-due">Status:</div>
+      </div>
+    </main>
+  </body>
+</html>
