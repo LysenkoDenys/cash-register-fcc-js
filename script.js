@@ -43,7 +43,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const checkCashRegister = (cash, price, cid) => {
     const payback = Math.round((cash - price) * 100) / 100;
     let numStatus;
-    const amountOfCid = cid.map(el * 2);
+    const amountOfCid = cid.map(
+      (el, index) => +(el[1] / nominalToDollar[index][1]).toFixed()
+    );
+    console.log(amountOfCid);
+    const paybackToNominalToDollar = nominalToDollar.map((el) =>
+      Math.floor(payback / el[1])
+    );
+    console.log(paybackToNominalToDollar);
+
     if (cash < price) {
       alert('Customer does not have enough money to purchase the item');
     }
