@@ -41,16 +41,40 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   const checkCashRegister = (cash, price, cid) => {
-    const payback = Math.round((cash - price) * 100) / 100;
+    let payback = Math.round((cash - price) * 100) / 100;
     let numStatus;
     const amountOfCid = cid.map(
       (el, index) => +(el[1] / nominalToDollar[index][1]).toFixed()
     );
     console.log(amountOfCid);
-    const paybackToNominalToDollar = nominalToDollar.map((el) =>
-      Math.floor(payback / el[1])
-    );
-    console.log(paybackToNominalToDollar);
+    // the loop:====================================================
+    while (payback !== 0) {
+      const paybackToNominalToDollar = nominalToDollar.map((el) =>
+        Math.floor(payback / el[1])
+      );
+      console.log(paybackToNominalToDollar);
+
+      const indexOfNeededAmount =
+        paybackToNominalToDollar.indexOf(0) !== 0
+          ? paybackToNominalToDollar.indexOf(0) > 0
+            ? paybackToNominalToDollar.indexOf(0) - 1
+            : paybackToNominalToDollar.length - 1
+          : 0;
+      console.log(indexOfNeededAmount);
+      if (
+        paybackToNominalToDollar[indexOfNeededAmount] >
+        amountOfCid[indexOfNeededAmount]
+      ) {
+        payback = (
+          payback -
+          nominalToDollar[indexOfNeededAmount][1] *
+            amountOfCid[indexOfNeededAmount]
+        ).toFixed(2);
+        amountOfCid[indexOfNeededAmount] = 0;
+      }
+      console.log(payback);
+    }
+    //==========================================
 
     if (cash < price) {
       alert('Customer does not have enough money to purchase the item');
