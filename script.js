@@ -48,11 +48,17 @@ document.addEventListener('DOMContentLoaded', () => {
     );
     console.log(amountOfCid);
     // the loop:====================================================
-    while (payback !== 0) {
-      const paybackToNominalToDollar = nominalToDollar.map((el) =>
-        Math.floor(payback / el[1])
-      );
-      console.log(paybackToNominalToDollar);
+    // let i = 7;
+    while (payback > 0) {
+      const paybackToNominalToDollar = nominalToDollar.map((el, index) => {
+        if (amountOfCid[index] > 0) {
+          return Math.floor(payback / el[1]);
+        } else {
+          return 0;
+        }
+      });
+
+      console.log('paybackToNominalToDollar:', paybackToNominalToDollar);
 
       const indexOfNeededAmount =
         paybackToNominalToDollar.indexOf(0) !== 0
@@ -71,8 +77,18 @@ document.addEventListener('DOMContentLoaded', () => {
             amountOfCid[indexOfNeededAmount]
         ).toFixed(2);
         amountOfCid[indexOfNeededAmount] = 0;
+      } else {
+        payback = (
+          payback -
+          nominalToDollar[indexOfNeededAmount][1] *
+            paybackToNominalToDollar[indexOfNeededAmount]
+        ).toFixed(2);
+        amountOfCid[indexOfNeededAmount] -=
+          paybackToNominalToDollar[indexOfNeededAmount];
       }
       console.log(payback);
+      console.log('amountOfCid:', amountOfCid);
+      // i--;
     }
     //==========================================
 
