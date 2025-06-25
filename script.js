@@ -40,15 +40,16 @@ document.addEventListener('DOMContentLoaded', () => {
     el.innerText += ` $${cid[index][1]}`;
   });
 
+  const arrResult = [];
+
   const checkCashRegister = (cash, price, cid) => {
     let payback = Math.round((cash - price) * 100) / 100;
     let numStatus;
     const amountOfCid = cid.map(
       (el, index) => +(el[1] / nominalToDollar[index][1]).toFixed()
     );
-    console.log(amountOfCid);
+    // console.log(amountOfCid);
     // the loop:====================================================
-    // let i = 7;
     while (payback > 0) {
       const paybackToNominalToDollar = nominalToDollar.map((el, index) => {
         if (amountOfCid[index] > 0) {
@@ -66,11 +67,19 @@ document.addEventListener('DOMContentLoaded', () => {
             ? paybackToNominalToDollar.indexOf(0) - 1
             : paybackToNominalToDollar.length - 1
           : 0;
-      console.log(indexOfNeededAmount);
+      // console.log(indexOfNeededAmount);
       if (
         paybackToNominalToDollar[indexOfNeededAmount] >
         amountOfCid[indexOfNeededAmount]
       ) {
+        // =============
+        arrResult.push(
+          `["${cid[indexOfNeededAmount][0]}",${
+            amountOfCid[indexOfNeededAmount] *
+            nominalToDollar[indexOfNeededAmount][1]
+          }]`
+        );
+        // =============
         payback = (
           payback -
           nominalToDollar[indexOfNeededAmount][1] *
@@ -78,6 +87,14 @@ document.addEventListener('DOMContentLoaded', () => {
         ).toFixed(2);
         amountOfCid[indexOfNeededAmount] = 0;
       } else {
+        // =============
+        arrResult.push(
+          `["${cid[indexOfNeededAmount][0]}",${
+            paybackToNominalToDollar[indexOfNeededAmount] *
+            nominalToDollar[indexOfNeededAmount][1]
+          }]`
+        );
+        // =============
         payback = (
           payback -
           nominalToDollar[indexOfNeededAmount][1] *
@@ -86,9 +103,9 @@ document.addEventListener('DOMContentLoaded', () => {
         amountOfCid[indexOfNeededAmount] -=
           paybackToNominalToDollar[indexOfNeededAmount];
       }
-      console.log(payback);
-      console.log('amountOfCid:', amountOfCid);
-      // i--;
+      // console.log(payback);
+      // console.log('amountOfCid:', amountOfCid);
+      console.log(arrResult); //
     }
     //==========================================
 
@@ -106,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     //hardcoding===========================================:
 
-    return (statusNode.innerText = `Status: ${status[numStatus]} ${cid}`);
+    return (statusNode.innerText = `Status: ${status[numStatus]} ${arrResult}`);
   };
 
   buttonNode.addEventListener('click', () => {
