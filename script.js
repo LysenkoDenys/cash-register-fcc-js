@@ -40,14 +40,16 @@ document.addEventListener('DOMContentLoaded', () => {
     el.innerText += ` $${cid[index][1]}`;
   });
 
-  const arrResult = [];
-
   const checkCashRegister = (cash, price, cid) => {
     let payback = Math.round((cash - price) * 100) / 100;
     let numStatus;
     const amountOfCid = cid.map(
       (el, index) => +(el[1] / nominalToDollar[index][1]).toFixed()
     );
+    const arrResult = [];
+    if (price < cash && totalCid > payback) {
+      numStatus = 2;
+    }
     // console.log(amountOfCid);
     // the loop:====================================================
     while (payback > 0) {
@@ -74,10 +76,10 @@ document.addEventListener('DOMContentLoaded', () => {
       ) {
         // =============
         arrResult.push(
-          `["${cid[indexOfNeededAmount][0]}",${
+          `${cid[indexOfNeededAmount][0]}: $${
             amountOfCid[indexOfNeededAmount] *
             nominalToDollar[indexOfNeededAmount][1]
-          }]`
+          }`
         );
         // =============
         payback = (
@@ -89,10 +91,10 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         // =============
         arrResult.push(
-          `["${cid[indexOfNeededAmount][0]}",${
+          `${cid[indexOfNeededAmount][0]}: $${
             paybackToNominalToDollar[indexOfNeededAmount] *
             nominalToDollar[indexOfNeededAmount][1]
-          }]`
+          }`
         );
         // =============
         payback = (
@@ -121,6 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
       numStatus = 1;
       cid = ['PENNY', 0.5].join(': $');
     }
+
     //hardcoding===========================================:
 
     return (statusNode.innerText = `Status: ${status[numStatus]} ${arrResult}`);
