@@ -50,6 +50,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (price < cash && totalCid > payback) {
       numStatus = 2;
     }
+    if (price < cash && totalCid < payback) {
+      numStatus = 0;
+    }
+    //==============work all the tests until 13:
+    if (totalCid === payback) {
+      numStatus = 1;
+      const fullCidFormatted = cid.map(
+        ([name, amount]) => `${name}:$${amount.toFixed(2)}`
+      );
+      statusNode.innerText = `Status: ${status[numStatus]} ${JSON.stringify(
+        cid
+      )}`;
+      return;
+    }
+
     // console.log(amountOfCid);
     // the loop:====================================================
     while (payback > 0) {
@@ -76,10 +91,10 @@ document.addEventListener('DOMContentLoaded', () => {
       ) {
         // =============
         arrResult.push(
-          `${cid[indexOfNeededAmount][0]}: $${
+          `${cid[indexOfNeededAmount][0]}: $${(
             amountOfCid[indexOfNeededAmount] *
             nominalToDollar[indexOfNeededAmount][1]
-          }`
+          ).toFixed(2)}`
         );
         // =============
         payback = (
@@ -91,10 +106,10 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         // =============
         arrResult.push(
-          `${cid[indexOfNeededAmount][0]}: $${
+          `${cid[indexOfNeededAmount][0]}: $${(
             paybackToNominalToDollar[indexOfNeededAmount] *
             nominalToDollar[indexOfNeededAmount][1]
-          }`
+          ).toFixed(2)}`
         );
         // =============
         payback = (
@@ -111,20 +126,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     //==========================================
 
+    // if (payback < 0) {
+    //   numStatus = 0;
+    // }
+
     if (cash < price) {
       alert('Customer does not have enough money to purchase the item');
     }
     if (cash === price) {
       statusNode.innerText = 'No change due - customer paid with exact cash';
+      return;
     }
-
-    //hardcoding===========================================:
-    if (payback === 0.5 && price < cash) {
-      numStatus = 1;
-      cid = ['PENNY', 0.5].join(': $');
-    }
-
-    //hardcoding===========================================:
 
     return (statusNode.innerText = `Status: ${status[numStatus]} ${arrResult}`);
   };
