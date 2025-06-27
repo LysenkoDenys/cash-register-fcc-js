@@ -47,27 +47,22 @@ document.addEventListener('DOMContentLoaded', () => {
       (el, index) => +(el[1] / nominalToDollar[index][1]).toFixed()
     );
     const arrResult = [];
-    if (price < cash && totalCid > payback) {
-      numStatus = 2;
-    }
+    statusNode.innerText = '';
+
     if (price < cash && totalCid < payback) {
       numStatus = 0;
     }
-    //==============work all the tests until 13:
-    if (totalCid === payback) {
-      numStatus = 1;
-      const fullCidFormatted = cid.map(
-        ([name, amount]) => `${name}:$${amount.toFixed(2)}`
-      );
+    if (totalCid < payback) {
+      numStatus = 0;
       statusNode.innerText = `Status: ${status[numStatus]} ${JSON.stringify(
         cid
       )}`;
       return;
     }
 
-    // console.log(amountOfCid);
     // the loop:====================================================
     while (payback > 0) {
+      const paybackBefore = payback;
       const paybackToNominalToDollar = nominalToDollar.map((el, index) => {
         if (amountOfCid[index] > 0) {
           return Math.floor(payback / el[1]);
@@ -78,58 +73,71 @@ document.addEventListener('DOMContentLoaded', () => {
 
       console.log('paybackToNominalToDollar:', paybackToNominalToDollar);
 
-      const indexOfNeededAmount =
-        paybackToNominalToDollar.indexOf(0) !== 0
-          ? paybackToNominalToDollar.indexOf(0) > 0
-            ? paybackToNominalToDollar.indexOf(0) - 1
-            : paybackToNominalToDollar.length - 1
-          : 0;
-      // console.log(indexOfNeededAmount);
+      let indexOfNeededAmount = -1;
+      for (let i = nominalToDollar.length - 1; i >= 0; i--) {
+        if (amountOfCid[i] > 0 && payback >= nominalToDollar[i][1]) {
+          indexOfNeededAmount = i;
+          break;
+        }
+      }
+      if (indexOfNeededAmount === -1) {
+        break;
+      }
       if (
         paybackToNominalToDollar[indexOfNeededAmount] >
         amountOfCid[indexOfNeededAmount]
       ) {
-        // =============
         arrResult.push(
           `${cid[indexOfNeededAmount][0]}: $${(
             amountOfCid[indexOfNeededAmount] *
             nominalToDollar[indexOfNeededAmount][1]
           ).toFixed(2)}`
         );
-        // =============
-        payback = (
-          payback -
-          nominalToDollar[indexOfNeededAmount][1] *
-            amountOfCid[indexOfNeededAmount]
-        ).toFixed(2);
+        payback =
+          Math.round(
+            (payback -
+              nominalToDollar[indexOfNeededAmount][1] *
+                amountOfCid[indexOfNeededAmount]) *
+              100
+          ) / 100;
         amountOfCid[indexOfNeededAmount] = 0;
       } else {
-        // =============
         arrResult.push(
           `${cid[indexOfNeededAmount][0]}: $${(
             paybackToNominalToDollar[indexOfNeededAmount] *
             nominalToDollar[indexOfNeededAmount][1]
           ).toFixed(2)}`
         );
-        // =============
-        payback = (
-          payback -
-          nominalToDollar[indexOfNeededAmount][1] *
-            paybackToNominalToDollar[indexOfNeededAmount]
-        ).toFixed(2);
+        payback =
+          Math.round(
+            (payback -
+              nominalToDollar[indexOfNeededAmount][1] *
+                paybackToNominalToDollar[indexOfNeededAmount]) *
+              100
+          ) / 100;
         amountOfCid[indexOfNeededAmount] -=
           paybackToNominalToDollar[indexOfNeededAmount];
       }
-      // console.log(payback);
-      // console.log('amountOfCid:', amountOfCid);
-      console.log(arrResult); //
+      if (paybackBefore === payback) {
+        break;
+      }
     }
-    //==========================================
 
-    // if (payback < 0) {
-    //   numStatus = 0;
-    // }
-
+    if (parseFloat(payback) > 0) {
+      numStatus = 0;
+      statusNode.innerText = `Status: ${status[numStatus]}`;
+      return;
+    }
+    if (totalCid === Math.round((cash - price) * 100) / 100) {
+      numStatus = 1;
+      statusNode.innerText = `Status: ${status[numStatus]} ${JSON.stringify(
+        arrResult
+      )}`;
+      return;
+    }
+    if (numStatus === undefined) {
+      numStatus = 2;
+    }
     if (cash < price) {
       alert('Customer does not have enough money to purchase the item');
     }
