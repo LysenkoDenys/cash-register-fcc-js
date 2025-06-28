@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalCid = roundToCents(
       cid.reduce((acc, currItem) => acc + currItem[1], 0)
     );
-    const amountOfCid = cid.map(
+    const unitsInDrawer = cid.map(
       (el, index) => +(el[1] / nominalToDollar[index][1]).toFixed()
     );
     const arrResult = [];
@@ -69,18 +69,16 @@ document.addEventListener('DOMContentLoaded', () => {
     while (payback > 0) {
       const paybackBefore = payback;
       const paybackToNominalToDollar = nominalToDollar.map((el, index) => {
-        if (amountOfCid[index] > 0) {
+        if (unitsInDrawer[index] > 0) {
           return Math.floor(payback / el[1]);
         } else {
           return 0;
         }
       });
 
-      console.log('paybackToNominalToDollar:', paybackToNominalToDollar);
-
       let indexOfNeededAmount = -1;
       for (let i = nominalToDollar.length - 1; i >= 0; i--) {
-        if (amountOfCid[i] > 0 && payback >= nominalToDollar[i][1]) {
+        if (unitsInDrawer[i] > 0 && payback >= nominalToDollar[i][1]) {
           indexOfNeededAmount = i;
           break;
         }
@@ -90,31 +88,27 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (
         paybackToNominalToDollar[indexOfNeededAmount] >
-        amountOfCid[indexOfNeededAmount]
+        unitsInDrawer[indexOfNeededAmount]
       ) {
         arrResult.push([
           cid[indexOfNeededAmount][0],
-          parseFloat(
-            (
-              amountOfCid[indexOfNeededAmount] *
+          roundToCents(
+            unitsInDrawer[indexOfNeededAmount] *
               nominalToDollar[indexOfNeededAmount][1]
-            ).toFixed(2)
           ),
         ]);
         payback = roundToCents(
           payback -
             nominalToDollar[indexOfNeededAmount][1] *
-              amountOfCid[indexOfNeededAmount]
+              unitsInDrawer[indexOfNeededAmount]
         );
-        amountOfCid[indexOfNeededAmount] = 0;
+        unitsInDrawer[indexOfNeededAmount] = 0;
       } else {
         arrResult.push([
           cid[indexOfNeededAmount][0],
-          parseFloat(
-            (
-              paybackToNominalToDollar[indexOfNeededAmount] *
+          roundToCents(
+            paybackToNominalToDollar[indexOfNeededAmount] *
               nominalToDollar[indexOfNeededAmount][1]
-            ).toFixed(2)
           ),
         ]);
         payback = roundToCents(
@@ -122,15 +116,17 @@ document.addEventListener('DOMContentLoaded', () => {
             nominalToDollar[indexOfNeededAmount][1] *
               paybackToNominalToDollar[indexOfNeededAmount]
         );
-        amountOfCid[indexOfNeededAmount] -=
+        unitsInDrawer[indexOfNeededAmount] -=
           paybackToNominalToDollar[indexOfNeededAmount];
       }
       if (paybackBefore === payback) {
         break;
       }
     }
+    const formatChange = (arr) =>
+      arr.map(([name, val]) => `${name}: $${val}`).join(' ');
 
-    if (parseFloat(payback) > 0) {
+    if (payback > 0) {
       statusNode.innerText = `Status: ${status[0]}`;
       return;
     }
@@ -141,9 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
       statusNode.innerText = `Status: ${status[1]} ${resultStr}`;
       return;
     }
-    const resultStr = arrResult
-      .map(([name, value]) => `${name}: $${value}`)
-      .join(' ');
+    const resultStr = formatChange(arrResult);
     return (statusNode.innerText = `Status: ${status[2]} ${resultStr}`);
   };
 
