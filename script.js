@@ -10,6 +10,7 @@ let cid = [
   ['TWENTY', 60],
   ['ONE HUNDRED', 100],
 ];
+
 const nominalToDollar = [
   ['PENNY', 0.01],
   ['NICKEL', 0.05],
@@ -33,34 +34,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
   totalNode.innerText += ` $${price}`;
 
-  const totalCid =
-    Math.round(cid.reduce((acc, currItem) => acc + currItem[1], 0) * 100) / 100;
-
   listItemsNode.forEach((el, index) => {
     el.innerText += ` $${cid[index][1]}`;
   });
 
+  const roundToCents = (num) => Math.round(num * 100) / 100;
+
   const checkCashRegister = (cash, price, cid) => {
-    let payback = Math.round((cash - price) * 100) / 100;
-    let numStatus;
+    let payback = roundToCents(cash - price);
+    const totalCid = roundToCents(
+      cid.reduce((acc, currItem) => acc + currItem[1], 0)
+    );
     const amountOfCid = cid.map(
       (el, index) => +(el[1] / nominalToDollar[index][1]).toFixed()
     );
     const arrResult = [];
     statusNode.innerText = '';
 
-    if (price < cash && totalCid < payback) {
-      numStatus = 0;
+    if (cash < price) {
+      alert('Customer does not have enough money to purchase the item');
+      return;
     }
-    if (totalCid < payback) {
-      numStatus = 0;
-      statusNode.innerText = `Status: ${status[numStatus]} ${JSON.stringify(
-        cid
-      )}`;
+    if (cash === price) {
+      statusNode.innerText = 'No change due - customer paid with exact cash';
       return;
     }
 
-    // the loop:====================================================
+    if (totalCid < payback) {
+      statusNode.innerText = `Status: ${status[0]}`;
+      return;
+    }
+
+    // the loop:
     while (payback > 0) {
       const paybackBefore = payback;
       const paybackToNominalToDollar = nominalToDollar.map((el, index) => {
@@ -87,34 +92,36 @@ document.addEventListener('DOMContentLoaded', () => {
         paybackToNominalToDollar[indexOfNeededAmount] >
         amountOfCid[indexOfNeededAmount]
       ) {
-        arrResult.push(
-          `${cid[indexOfNeededAmount][0]}: $${(
-            amountOfCid[indexOfNeededAmount] *
-            nominalToDollar[indexOfNeededAmount][1]
-          ).toFixed(2)}`
+        arrResult.push([
+          cid[indexOfNeededAmount][0],
+          parseFloat(
+            (
+              amountOfCid[indexOfNeededAmount] *
+              nominalToDollar[indexOfNeededAmount][1]
+            ).toFixed(2)
+          ),
+        ]);
+        payback = roundToCents(
+          payback -
+            nominalToDollar[indexOfNeededAmount][1] *
+              amountOfCid[indexOfNeededAmount]
         );
-        payback =
-          Math.round(
-            (payback -
-              nominalToDollar[indexOfNeededAmount][1] *
-                amountOfCid[indexOfNeededAmount]) *
-              100
-          ) / 100;
         amountOfCid[indexOfNeededAmount] = 0;
       } else {
-        arrResult.push(
-          `${cid[indexOfNeededAmount][0]}: $${(
-            paybackToNominalToDollar[indexOfNeededAmount] *
-            nominalToDollar[indexOfNeededAmount][1]
-          ).toFixed(2)}`
+        arrResult.push([
+          cid[indexOfNeededAmount][0],
+          parseFloat(
+            (
+              paybackToNominalToDollar[indexOfNeededAmount] *
+              nominalToDollar[indexOfNeededAmount][1]
+            ).toFixed(2)
+          ),
+        ]);
+        payback = roundToCents(
+          payback -
+            nominalToDollar[indexOfNeededAmount][1] *
+              paybackToNominalToDollar[indexOfNeededAmount]
         );
-        payback =
-          Math.round(
-            (payback -
-              nominalToDollar[indexOfNeededAmount][1] *
-                paybackToNominalToDollar[indexOfNeededAmount]) *
-              100
-          ) / 100;
         amountOfCid[indexOfNeededAmount] -=
           paybackToNominalToDollar[indexOfNeededAmount];
       }
@@ -124,29 +131,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (parseFloat(payback) > 0) {
-      numStatus = 0;
-      statusNode.innerText = `Status: ${status[numStatus]}`;
+      statusNode.innerText = `Status: ${status[0]}`;
       return;
     }
-    if (totalCid === Math.round((cash - price) * 100) / 100) {
-      numStatus = 1;
-      statusNode.innerText = `Status: ${status[numStatus]} ${JSON.stringify(
-        arrResult
-      )}`;
+    if (totalCid === roundToCents(cash - price)) {
+      const resultStr = arrResult
+        .map(([name, value]) => `${name}: $${value}`)
+        .join(' ');
+      statusNode.innerText = `Status: ${status[1]} ${resultStr}`;
       return;
     }
-    if (numStatus === undefined) {
-      numStatus = 2;
-    }
-    if (cash < price) {
-      alert('Customer does not have enough money to purchase the item');
-    }
-    if (cash === price) {
-      statusNode.innerText = 'No change due - customer paid with exact cash';
-      return;
-    }
-
-    return (statusNode.innerText = `Status: ${status[numStatus]} ${arrResult}`);
+    const resultStr = arrResult
+      .map(([name, value]) => `${name}: $${value}`)
+      .join(' ');
+    return (statusNode.innerText = `Status: ${status[2]} ${resultStr}`);
   };
 
   buttonNode.addEventListener('click', () => {
