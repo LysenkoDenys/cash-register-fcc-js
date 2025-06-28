@@ -130,6 +130,18 @@ document.addEventListener('DOMContentLoaded', () => {
       statusNode.innerText = `Status: ${status[0]}`;
       return;
     }
+
+    // =====================================
+    cid = cid.map((item, index) => {
+      const [name] = item;
+      const newAmount = roundToCents(
+        unitsInDrawer[index] * nominalToDollar[index][1]
+      );
+      return [name, newAmount];
+    });
+    // =====================================
+    console.log(cid);
+
     if (totalCid === roundToCents(cash - price)) {
       const resultStr = arrResult
         .map(([name, value]) => `${name}: $${value}`)
@@ -138,6 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     const resultStr = formatChange(arrResult);
+
     return (statusNode.innerText = `Status: ${status[2]} ${resultStr}`);
   };
 
