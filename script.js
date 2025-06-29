@@ -35,8 +35,12 @@ document.addEventListener('DOMContentLoaded', () => {
   totalNode.innerText += ` $${price}`;
 
   const renderCid = () => {
-    listItemsNode.forEach((el, index) => {
-      el.innerText = `${cid[index][0]}: $${cid[index][1].toFixed(2)}`;
+    const cidList = document.getElementById('cid-list');
+    cidList.innerHTML = '';
+    cid.forEach(([name, amount]) => {
+      const li = document.createElement('li');
+      li.innerText = `${name}: $${amount.toFixed(2)}`;
+      cidList.appendChild(li);
     });
   };
   renderCid();
