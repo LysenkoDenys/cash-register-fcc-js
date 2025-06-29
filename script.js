@@ -34,9 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   totalNode.innerText += ` $${price}`;
 
-  listItemsNode.forEach((el, index) => {
-    el.innerText += ` $${cid[index][1]}`;
-  });
+  const renderCid = () => {
+    listItemsNode.forEach((el, index) => {
+      el.innerText = `${cid[index][0]}: $${cid[index][1].toFixed(2)}`;
+    });
+  };
+  renderCid();
 
   const roundToCents = (num) => Math.round(num * 100) / 100;
 
@@ -132,15 +135,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =====================================
-    cid = cid.map((item, index) => {
-      const [name] = item;
-      const newAmount = roundToCents(
-        unitsInDrawer[index] * nominalToDollar[index][1]
-      );
-      return [name, newAmount];
+    cid.forEach((item, index) => {
+      item[1] = roundToCents(unitsInDrawer[index] * nominalToDollar[index][1]);
     });
     // =====================================
-    console.log(cid);
+    renderCid();
 
     if (totalCid === roundToCents(cash - price)) {
       const resultStr = arrResult
@@ -151,7 +150,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const resultStr = formatChange(arrResult);
 
-    return (statusNode.innerText = `Status: ${status[2]} ${resultStr}`);
+    statusNode.innerText = `Status: ${status[2]} ${resultStr}`;
+    return;
   };
 
   buttonNode.addEventListener('click', () => {
